@@ -234,6 +234,16 @@ pnpm dev
 
 > Buat akun customer baru via `/register`. Untuk akun admin baru: buat user di Supabase Dashboard → Authentication → Users, lalu set `role = 'ADMIN'` di tabel `profiles`.
 
+### Demo Voucher Codes
+
+| Kode | Tipe | Nilai | Min. Belanja | Max Diskon | Keterangan |
+|------|------|-------|--------------|------------|------------|
+| `NEWUSER50` | PERCENT | 50% | Rp 50.000 | Rp 25.000 | Diskon 50% untuk pembelian pertama |
+| `DISKON10` | PERCENT | 10% | Rp 100.000 | — | Diskon 10% tanpa batas maksimum |
+| `HEMAT25K` | FIXED | Rp 25.000 | Rp 200.000 | — | Potongan langsung Rp 25.000 |
+
+> Masukkan kode voucher di halaman checkout sebelum konfirmasi pembayaran.
+
 ---
 
 ## API Endpoints
@@ -292,3 +302,58 @@ pnpm dev
 - **Gambar kategori**: Diambil dari Wikimedia Commons (lisensi CC, CDN stabil). Ganti dengan aset resmi sebelum production.
 - **Payment flow**: Simulasi — VA number, QR code, dan QRIS bersifat demo. Production membutuhkan integrasi payment gateway (Midtrans/Xendit webhook).
 - **Order status**: Tetap `PENDING` setelah checkout simulasi. Webhook payment gateway akan mengupdate status ke `PAID`/`FAILED`.
+
+---
+
+## Kendala saat Development
+
+### 1. React Compiler ESLint False Positives
+Next.js 16 mengaktifkan React Compiler secara default, yang membawa rule ESLint baru seperti `react-hooks/set-state-in-effect`. Pattern standar React yang sudah sangat umum — seperti `useEffect(() => { setMounted(true) }, [])` untuk hydration-safe rendering — justru di-flag sebagai violation. Ini bukan bug pada kode, melainkan ketidaksesuaian antara rule yang terlalu agresif dengan pola yang sudah established. Solusi: menambahkan override `"react-hooks/set-state-in-effect": "off"` di `eslint.config.mjs`.
+
+### 2. Tailwind CSS v4 Breaking Changes pada Nama Class
+Tailwind v4 memperkenalkan "canonical class" yang menggantikan beberapa nama lama: `bg-gradient-to-r` → `bg-linear-to-r`, `aspect-[4/3]` → `aspect-4/3`, `bg-white/[0.03]` → `bg-white/3`. Build tetap berhasil karena Tailwind masih menerima keduanya, namun ESLint mengeluarkan warning untuk semua class non-canonical. Setiap komponen yang menggunakan class tersebut harus ditelusuri dan diganti manual satu per satu.
+
+### 3. Cart Persisten Bocor Antar User
+Zustand dengan middleware `persist` menyimpan cart di `localStorage` menggunakan key yang sama untuk semua user (`cart-storage`). Ketika user A logout lalu user B login, cart user A masih terbaca oleh user B karena `localStorage` tidak otomatis dibersihkan saat sesi berganti. Bug ini baru terdeteksi saat simulasi registrasi user baru. Solusi: memanggil `clearCart()` secara eksplisit di tiga titik — saat login berhasil, saat logout di shop header, dan saat logout di admin sidebar.
+
+### 4. Payment Modal Terpotong di Viewport 100% Zoom
+`DialogContent` dari Radix UI tidak membatasi tinggi secara otomatis. Pada resolusi desktop standar (1920×1080, 100% zoom) dengan konten modal yang panjang (form + opsi pembayaran + QR code), bagian bawah modal terpotong dan tombol konfirmasi tidak terlihat. Pengguna harus memperkecil zoom ke 80% untuk melihat keseluruhan modal. Solusi: menambahkan `flex flex-col max-h-[90vh]` pada `DialogContent` dan `flex-1 overflow-y-auto` pada body konten agar modal dapat di-scroll di dalam viewport.
+
+### 5. `Date.now()` dalam Render Menyebabkan React Compiler Error
+String referensi QR (`JHN-${Date.now()}`) awalnya digenerate langsung di JSX, yaitu di dalam render function. React Compiler mendeteksi ini sebagai fungsi impure karena menghasilkan nilai berbeda setiap render. Error: `react-hooks/purity`. Solusi: memindahkan inisialisasi ke `useState(() => \`JHN-${Date.now()}\`)` agar hanya dieksekusi sekali saat komponen pertama kali mount.
+
+### 6. Hydration Mismatch dengan `next-themes`
+`ThemeProvider` dari `next-themes` membaca preferensi tema dari `localStorage` di sisi client, sementara server selalu me-render HTML tanpa class `dark`. Ini menyebabkan React mendeteksi perbedaan antara HTML server dan client (hydration mismatch) dan memunculkan warning. Solusi: menambahkan `suppressHydrationWarning` pada tag `<html>` di root layout, yang memberitahu React bahwa perbedaan atribut di elemen ini memang disengaja.
+
+### 7. Tampilan Light Mode Tidak Terlihat (Invisible UI)
+Seluruh desain awal dibuat untuk dark mode menggunakan class seperti `text-white/50`, `bg-white/5`, `border-white/10`. Ketika light mode diaktifkan, elemen-elemen ini hampir tidak terlihat di atas background terang — teks menjadi putih transparan di atas putih, border tidak ada, tombol menghilang. Diperlukan audit menyeluruh pada semua komponen publik (shop header, cart drawer, product card, category filter, form login) untuk menambahkan counterpart light mode dengan `dark:` prefix, misalnya `text-black/50 dark:text-white/50`.
+
+### 8. PowerShell Tidak Kompatibel dengan Path Berparenthesis
+Direktori Next.js App Router menggunakan konvensi route group dengan nama folder berparenthesis seperti `(auth)` dan `(shop)`. Di PowerShell, karakter `(` dan `)` diinterpretasikan sebagai subexpression — sehingga perintah `git add src/app/(auth)/layout.tsx` mengakibatkan error `The term 'auth' is not recognized`. Solusi: selalu membungkus path yang mengandung parenthesis dengan tanda kutip ganda: `git add "src/app/(auth)/layout.tsx"`.
+
+### 9. GitHub Contributor Cache Tidak Langsung Update Setelah History Rewrite
+Setelah seluruh git history ditulis ulang menggunakan `git filter-branch` dan kemudian diganti total dengan orphan branch (satu commit bersih tanpa Co-Authored-By), GitHub tetap menampilkan contributor lama di sidebar repository. Ini adalah cache server-side GitHub yang dibangun secara asynchronous dan tidak bisa di-trigger ulang secara manual. Satu-satunya cara yang menjamin pembersihan segera adalah menghapus repository dan membuatnya ulang dengan nama yang sama, lalu push ulang branch yang sudah bersih.
+
+---
+
+## Scalability Improvements
+
+Berikut peningkatan yang perlu dilakukan jika aplikasi ini dikembangkan lebih lanjut ke skala production:
+
+### Infrastruktur & Backend
+- **Payment Gateway Integration** — Integrasi Midtrans atau Xendit dengan webhook untuk auto-update status order (`PENDING` → `PAID`/`FAILED`) secara realtime, menggantikan simulasi saat ini.
+- **Queue System** — Gunakan Upstash QStash atau BullMQ untuk memproses task async seperti pengiriman email notifikasi, generate invoice PDF, dan update stok setelah pembayaran dikonfirmasi.
+- **Rate Limiting** — Tambahkan rate limiting di API route kritis (`/api/auth/login`, `/api/orders`) menggunakan Upstash Redis untuk mencegah brute force dan abuse.
+- **Supabase Edge Functions** — Pindahkan logika `create_order_atomic` dan validasi voucher ke Edge Functions agar eksekusi lebih dekat ke database dan mengurangi latency round-trip.
+
+### Performa & Skalabilitas
+- **Cursor-Based Pagination** — Ganti offset pagination saat ini (`page * limit`) dengan cursor-based untuk performa konsisten di dataset besar (jutaan produk/order).
+- **Query Caching** — Cache hasil query produk populer dan statistik dashboard di Redis/Upstash dengan TTL pendek (1–5 menit) untuk mengurangi beban database.
+- **Image CDN** — Migrasikan storage gambar dari Supabase Storage ke Cloudflare R2 + CDN global untuk delivery gambar yang lebih cepat dan lebih murah di trafik tinggi.
+- **Supabase Realtime untuk Stok** — Gunakan Supabase Realtime subscription di halaman produk untuk live-update stok, mencegah dua user checkout produk yang sama secara bersamaan (race condition).
+
+### Fitur Bisnis
+- **Multi-Seller Support** — Tambahkan tabel `sellers`/`stores` agar marketplace dapat menampung banyak merchant dengan dashboard masing-masing dan revenue sharing.
+- **Full-Text Search** — Integrasikan Algolia atau gunakan `pgvector` di Supabase untuk pencarian produk yang lebih relevan (fuzzy matching, typo tolerance, ranking by popularity).
+- **Sistem Review & Rating** — Tabel `reviews` terhubung ke `order_items` agar buyer hanya bisa review produk yang sudah dibeli, menjaga kredibilitas rating.
+- **Notifikasi Email Transaksional** — Gunakan Resend atau Supabase SMTP untuk kirim email konfirmasi order, reminder pembayaran, dan notifikasi pengiriman.
