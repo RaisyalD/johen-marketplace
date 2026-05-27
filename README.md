@@ -93,6 +93,29 @@ User isi form → validate (Zod + RHF)
 
 ---
 
+## Screenshots
+
+### Shop
+| Homepage | Detail Produk |
+|----------|---------------|
+| ![Shop Homepage](docs/screenshots/01-shop-homepage.png) | ![Product Detail](docs/screenshots/02-product-detail.png) |
+
+### Checkout & Order
+| Checkout — Isi Form | Checkout — Pilih Pembayaran |
+|---------------------|----------------------------|
+| ![Checkout Form](docs/screenshots/03-checkout-flow1.png) | ![Payment Modal](docs/screenshots/04-checkout-flow2.png) |
+
+| Order Success |
+|---------------|
+| ![Order Success](docs/screenshots/05-order-success.png) |
+
+### Admin Panel
+| Dashboard | Manajemen Produk |
+|-----------|-----------------|
+| ![Admin Dashboard](docs/screenshots/06-admin-dashboard.png) | ![Admin Products](docs/screenshots/07-admin-products.png) |
+
+---
+
 ## Entity Relationship Diagram
 
 ```mermaid
