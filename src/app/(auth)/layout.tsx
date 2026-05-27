@@ -5,7 +5,13 @@ import Image from "next/image"
 export const metadata: Metadata = {
   title: {
     template: "%s | Johen Gaming",
-    default: "Johen Gaming",
+    default: "Johen Gaming - Marketplace Akun & Top Up Game",
+  },
+  description:
+    "Marketplace terpercaya untuk jual beli akun game, top up, dan voucher digital.",
+  icons: {
+    icon: "/images/johen.jpeg",
+    apple: "/images/johen.jpeg",
   },
 }
 
