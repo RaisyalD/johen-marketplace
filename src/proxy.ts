@@ -58,7 +58,15 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/admin", request.url))
   }
 
-  // 3. Redirect logged-in users away from auth pages
+  // 3. Protect /checkout and /order-success — require any logged-in user
+  const CUSTOMER_PROTECTED = ["/checkout", "/order-success"]
+  if (!user && CUSTOMER_PROTECTED.some((r) => pathname.startsWith(r))) {
+    const loginUrl = new URL("/login", request.url)
+    loginUrl.searchParams.set("redirect", pathname)
+    return NextResponse.redirect(loginUrl)
+  }
+
+  // 4. Redirect logged-in users away from auth pages
   if (user && (pathname === "/login" || pathname === "/register")) {
     const dest = role === "ADMIN" ? "/admin" : "/shop"
     return NextResponse.redirect(new URL(dest, request.url))
