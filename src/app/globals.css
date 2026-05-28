@@ -131,10 +131,10 @@
 }
 
 .dark {
-  --brand-bg:          #0a0a0f;
-  --brand-surface:     #0d0d14;
-  --brand-elevated:    #0d0d16;
-  --brand-overlay:     #15151f;
+  --brand-bg:          #0f0f18;
+  --brand-surface:     #14141f;
+  --brand-elevated:    #1a1a28;
+  --brand-overlay:     #1e1e2c;
   --brand-text:        #ffffff;
   --brand-text-muted:  rgba(255, 255, 255, 0.5);
   --brand-border:      rgba(255, 255, 255, 0.08);

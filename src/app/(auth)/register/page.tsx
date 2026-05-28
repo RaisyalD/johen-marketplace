@@ -67,10 +67,10 @@ export default function RegisterPage() {
 
   return (
     <div className="w-full max-w-sm">
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl">
+      <div className="rounded-2xl border border-violet-200/60 dark:border-white/10 bg-white dark:bg-white/5 p-8 shadow-xl shadow-violet-100/50 dark:shadow-2xl backdrop-blur-xl">
         <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold text-white">Buat Akun</h1>
-          <p className="mt-1 text-sm text-white/50">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Buat Akun</h1>
+          <p className="mt-1 text-sm text-black/50 dark:text-white/50">
             Bergabung dan mulai berbelanja
           </p>
         </div>
@@ -82,12 +82,12 @@ export default function RegisterPage() {
               name="full_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-white/70">Nama Lengkap</FormLabel>
+                  <FormLabel className="text-slate-700 dark:text-white/70">Nama Lengkap</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Nama lengkap Anda"
                       autoComplete="name"
-                      className="border-white/10 bg-white/5 text-white placeholder:text-white/30 focus-visible:ring-violet-500"
+                      className="border-violet-200/70 dark:border-white/10 bg-white dark:bg-white/5 text-slate-900 dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus-visible:ring-violet-500"
                       {...field}
                     />
                   </FormControl>
@@ -101,13 +101,13 @@ export default function RegisterPage() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-white/70">Email</FormLabel>
+                  <FormLabel className="text-slate-700 dark:text-white/70">Email</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
                       placeholder="contoh@email.com"
                       autoComplete="email"
-                      className="border-white/10 bg-white/5 text-white placeholder:text-white/30 focus-visible:ring-violet-500"
+                      className="border-violet-200/70 dark:border-white/10 bg-white dark:bg-white/5 text-slate-900 dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus-visible:ring-violet-500"
                       {...field}
                     />
                   </FormControl>
@@ -121,13 +121,13 @@ export default function RegisterPage() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-white/70">Password</FormLabel>
+                  <FormLabel className="text-slate-700 dark:text-white/70">Password</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
                       placeholder="Min. 8 karakter"
                       autoComplete="new-password"
-                      className="border-white/10 bg-white/5 text-white placeholder:text-white/30 focus-visible:ring-violet-500"
+                      className="border-violet-200/70 dark:border-white/10 bg-white dark:bg-white/5 text-slate-900 dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus-visible:ring-violet-500"
                       {...field}
                     />
                   </FormControl>
@@ -141,7 +141,7 @@ export default function RegisterPage() {
               name="confirm_password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-white/70">
+                  <FormLabel className="text-slate-700 dark:text-white/70">
                     Konfirmasi Password
                   </FormLabel>
                   <FormControl>
@@ -149,7 +149,7 @@ export default function RegisterPage() {
                       type="password"
                       placeholder="Ulangi password"
                       autoComplete="new-password"
-                      className="border-white/10 bg-white/5 text-white placeholder:text-white/30 focus-visible:ring-violet-500"
+                      className="border-violet-200/70 dark:border-white/10 bg-white dark:bg-white/5 text-slate-900 dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus-visible:ring-violet-500"
                       {...field}
                     />
                   </FormControl>
@@ -161,7 +161,7 @@ export default function RegisterPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 font-semibold text-white shadow-lg shadow-violet-500/30 hover:from-violet-500 hover:to-fuchsia-500"
+              className="w-full bg-linear-to-r from-violet-600 to-fuchsia-600 font-semibold text-white shadow-lg shadow-violet-500/30 hover:from-violet-500 hover:to-fuchsia-500"
             >
               {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -173,11 +173,11 @@ export default function RegisterPage() {
           </form>
         </Form>
 
-        <p className="mt-6 text-center text-sm text-white/40">
+        <p className="mt-6 text-center text-sm text-black/40 dark:text-white/40">
           Sudah punya akun?{" "}
           <Link
             href="/login"
-            className="text-violet-400 transition-colors hover:text-violet-300"
+            className="text-violet-600 dark:text-violet-400 transition-colors hover:text-violet-700 dark:hover:text-violet-300"
           >
             Login di sini
           </Link>

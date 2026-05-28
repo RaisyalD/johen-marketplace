@@ -40,8 +40,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* Logo */}
         <Link href="/shop" className="mb-8 flex items-center gap-2">
           <Image src="/images/johen.jpeg" alt="Johen Gaming" width={40} height={40} className="rounded-xl shadow-lg shadow-violet-500/30" />
-          <span className="text-2xl font-bold text-white">
-            Johen<span className="text-violet-400">Gaming</span>
+          <span className="text-2xl font-bold text-slate-900 dark:text-white">
+            Johen<span className="text-violet-500 dark:text-violet-400">Gaming</span>
           </span>
         </Link>
 

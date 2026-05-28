@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
@@ -24,6 +24,8 @@ import { useCartStore } from "@/stores/cart.store"
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get("redirect") ?? ""
   const [loading, setLoading] = useState(false)
   const clearCart = useCartStore((s) => s.clearCart)
 
@@ -54,6 +56,8 @@ export default function LoginPage() {
 
       if (json.data.role === "ADMIN") {
         router.push("/admin")
+      } else if (redirectTo.startsWith("/") && !redirectTo.startsWith("//")) {
+        router.push(redirectTo)
       } else {
         router.push("/shop")
       }
@@ -66,11 +70,11 @@ export default function LoginPage() {
 
   return (
     <div className="w-full max-w-sm">
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl">
+      <div className="rounded-2xl border border-violet-200/60 dark:border-white/10 bg-white dark:bg-white/5 p-8 shadow-xl shadow-violet-100/50 dark:shadow-2xl backdrop-blur-xl">
         <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold text-white">Selamat Datang</h1>
-          <p className="mt-1 text-sm text-white/50">
-            Login untuk mulai berbelanja
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Selamat Datang</h1>
+          <p className="mt-1 text-sm text-black/50 dark:text-white/50">
+            {redirectTo ? "Login untuk melanjutkan" : "Login untuk mulai berbelanja"}
           </p>
         </div>
 
@@ -81,13 +85,13 @@ export default function LoginPage() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-white/70">Email</FormLabel>
+                  <FormLabel className="text-slate-700 dark:text-white/70">Email</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
                       placeholder="contoh@email.com"
                       autoComplete="email"
-                      className="border-white/10 bg-white/5 text-white placeholder:text-white/30 focus-visible:ring-violet-500"
+                      className="border-violet-200/70 dark:border-white/10 bg-white dark:bg-white/5 text-slate-900 dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus-visible:ring-violet-500"
                       {...field}
                     />
                   </FormControl>
@@ -101,13 +105,13 @@ export default function LoginPage() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-white/70">Password</FormLabel>
+                  <FormLabel className="text-slate-700 dark:text-white/70">Password</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
                       placeholder="••••••••"
                       autoComplete="current-password"
-                      className="border-white/10 bg-white/5 text-white placeholder:text-white/30 focus-visible:ring-violet-500"
+                      className="border-violet-200/70 dark:border-white/10 bg-white dark:bg-white/5 text-slate-900 dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus-visible:ring-violet-500"
                       {...field}
                     />
                   </FormControl>
@@ -131,11 +135,11 @@ export default function LoginPage() {
           </form>
         </Form>
 
-        <p className="mt-6 text-center text-sm text-white/40">
+        <p className="mt-6 text-center text-sm text-black/40 dark:text-white/40">
           Belum punya akun?{" "}
           <Link
             href="/register"
-            className="text-violet-400 transition-colors hover:text-violet-300"
+            className="text-violet-600 dark:text-violet-400 transition-colors hover:text-violet-700 dark:hover:text-violet-300"
           >
             Daftar sekarang
           </Link>

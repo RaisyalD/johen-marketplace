@@ -2,7 +2,7 @@ import Link from "next/link"
 
 export default function NotFound() {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0a0a0f] flex items-center justify-center px-4">
+    <div className="relative min-h-screen overflow-hidden flex items-center justify-center px-4" style={{ backgroundColor: "var(--brand-bg)" }}>
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-violet-700/20 blur-[120px]" />
         <div className="absolute -right-40 -bottom-40 h-96 w-96 rounded-full bg-fuchsia-700/20 blur-[120px]" />
@@ -12,8 +12,8 @@ export default function NotFound() {
         <p className="text-9xl font-black text-transparent bg-clip-text bg-linear-to-b from-violet-400 to-fuchsia-600 select-none">
           404
         </p>
-        <h1 className="text-2xl font-bold text-white mt-2">Halaman Tidak Ditemukan</h1>
-        <p className="text-white/50 mt-2 mb-8 max-w-sm mx-auto text-sm">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white mt-2">Halaman Tidak Ditemukan</h1>
+        <p className="text-black/50 dark:text-white/50 mt-2 mb-8 max-w-sm mx-auto text-sm">
           Halaman yang kamu cari tidak ada atau sudah dipindahkan.
         </p>
         <div className="flex gap-3 justify-center">
@@ -25,7 +25,7 @@ export default function NotFound() {
           </Link>
           <Link
             href="/login"
-            className="inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/70 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+            className="inline-flex items-center justify-center rounded-lg border border-violet-200/60 dark:border-white/10 bg-white dark:bg-white/5 px-4 py-2 text-sm font-medium text-slate-600 dark:text-white/70 transition-colors hover:border-violet-300 dark:hover:border-white/20 hover:bg-violet-50 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
           >
             Login
           </Link>

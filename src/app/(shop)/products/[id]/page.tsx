@@ -85,7 +85,7 @@ export default function ProductDetailPage() {
     <div className="max-w-4xl mx-auto">
       <Link
         href="/shop"
-        className="mb-6 inline-flex items-center gap-1.5 text-sm text-white/40 hover:text-white transition-colors"
+        className="mb-6 inline-flex items-center gap-1.5 text-sm text-black/40 dark:text-white/40 hover:text-slate-900 dark:hover:text-white transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         Kembali ke Toko

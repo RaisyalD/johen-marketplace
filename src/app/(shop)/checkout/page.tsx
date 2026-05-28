@@ -102,7 +102,6 @@ export default function CheckoutPage() {
     }
   }
 
-  // Step 1: validate form → simulate 1.5s processing → open payment modal
   async function onSubmit(values: CheckoutFormValues) {
     if (items.length === 0) return
     setProcessing(true)
@@ -112,7 +111,6 @@ export default function CheckoutPage() {
     setPaymentOpen(true)
   }
 
-  // Step 2: user confirms in payment modal → create order → success
   async function confirmPayment() {
     if (!pendingValues) return
     const res = await fetch("/api/orders", {
@@ -142,11 +140,16 @@ export default function CheckoutPage() {
 
   const selectedPayment = form.watch("payment_method")
 
+  const sectionCard = "rounded-xl border border-violet-200/60 dark:border-white/8 bg-white dark:bg-white/3 p-5"
+  const sectionHeading = "mb-4 text-sm font-semibold uppercase tracking-wide text-black/40 dark:text-white/50 flex items-center gap-1.5"
+  const inputClass = "h-10 border-violet-200/70 dark:border-white/10 bg-white dark:bg-white/5 text-slate-900 dark:text-white placeholder:text-black/30 dark:placeholder:text-white/25 focus-visible:ring-violet-500"
+  const labelClass = "text-xs text-slate-600 dark:text-white/50"
+
   return (
     <div className="max-w-5xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">Checkout</h1>
-        <p className="text-sm text-white/40 mt-0.5">Selesaikan pesananmu</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Checkout</h1>
+        <p className="text-sm text-black/40 dark:text-white/40 mt-0.5">Selesaikan pesananmu</p>
       </div>
 
       <Form {...form}>
@@ -155,35 +158,35 @@ export default function CheckoutPage() {
             {/* LEFT: Form */}
             <div className="space-y-5">
               {/* Customer Info */}
-              <div className="rounded-xl border border-white/8 bg-white/3 p-5">
-                <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-white/50 flex items-center gap-1.5">
-                  <ChevronRight className="h-3.5 w-3.5 text-violet-400" />
+              <div className={sectionCard}>
+                <h2 className={sectionHeading}>
+                  <ChevronRight className="h-3.5 w-3.5 text-violet-500 dark:text-violet-400" />
                   Informasi Pembeli
                 </h2>
                 <div className="space-y-4">
                   <FormField control={form.control} name="customer_name" render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs text-white/50">Nama Lengkap *</FormLabel>
+                      <FormLabel className={labelClass}>Nama Lengkap *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Nama kamu" className="h-10 border-white/10 bg-white/5 text-white placeholder:text-white/25 focus-visible:ring-violet-500" {...field} />
+                        <Input placeholder="Nama kamu" className={inputClass} {...field} />
                       </FormControl>
-                      <FormMessage className="text-xs text-red-400" />
+                      <FormMessage className="text-xs text-red-500 dark:text-red-400" />
                     </FormItem>
                   )} />
                   <FormField control={form.control} name="customer_email" render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs text-white/50">Email *</FormLabel>
+                      <FormLabel className={labelClass}>Email *</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="email@kamu.com" className="h-10 border-white/10 bg-white/5 text-white placeholder:text-white/25 focus-visible:ring-violet-500" {...field} />
+                        <Input type="email" placeholder="email@kamu.com" className={inputClass} {...field} />
                       </FormControl>
-                      <FormMessage className="text-xs text-red-400" />
+                      <FormMessage className="text-xs text-red-500 dark:text-red-400" />
                     </FormItem>
                   )} />
                   <FormField control={form.control} name="customer_phone" render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs text-white/50">No. HP (opsional)</FormLabel>
+                      <FormLabel className={labelClass}>No. HP (opsional)</FormLabel>
                       <FormControl>
-                        <Input placeholder="08xxxxxxxxxx" className="h-10 border-white/10 bg-white/5 text-white placeholder:text-white/25 focus-visible:ring-violet-500" {...field} />
+                        <Input placeholder="08xxxxxxxxxx" className={inputClass} {...field} />
                       </FormControl>
                     </FormItem>
                   )} />
@@ -191,9 +194,9 @@ export default function CheckoutPage() {
               </div>
 
               {/* Voucher */}
-              <div className="rounded-xl border border-white/8 bg-white/3 p-5">
-                <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-white/50 flex items-center gap-1.5">
-                  <Tag className="h-3.5 w-3.5 text-violet-400" />
+              <div className={sectionCard}>
+                <h2 className={sectionHeading}>
+                  <Tag className="h-3.5 w-3.5 text-violet-500 dark:text-violet-400" />
                   Kode Voucher
                 </h2>
                 <div className="flex gap-2">
@@ -201,31 +204,31 @@ export default function CheckoutPage() {
                     placeholder="Masukkan kode voucher"
                     value={voucherCode}
                     onChange={(e) => { setVoucherCode(e.target.value.toUpperCase()); setVoucher(null) }}
-                    className="h-10 border-white/10 bg-white/5 text-white placeholder:text-white/25 focus-visible:ring-violet-500 font-mono"
+                    className={`${inputClass} font-mono`}
                     onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), applyVoucher())}
                   />
                   <Button
                     type="button"
                     onClick={applyVoucher}
                     disabled={!voucherCode.trim() || applyingVoucher}
-                    className="h-10 shrink-0 bg-violet-600/20 border border-violet-500/30 text-violet-300 hover:bg-violet-600/30 disabled:opacity-40"
+                    className="h-10 shrink-0 bg-violet-600/20 border border-violet-500/30 text-violet-700 dark:text-violet-300 hover:bg-violet-600/30 disabled:opacity-40"
                   >
                     {applyingVoucher ? <Loader2 className="h-4 w-4 animate-spin" /> : "Terapkan"}
                   </Button>
                 </div>
                 {voucher && (
-                  <div className={`mt-2 flex items-center gap-1.5 text-xs ${voucher.valid ? "text-emerald-400" : "text-red-400"}`}>
+                  <div className={`mt-2 flex items-center gap-1.5 text-xs ${voucher.valid ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"}`}>
                     {voucher.valid ? <CheckCircle2 className="h-3.5 w-3.5" /> : null}
                     {voucher.message}
                   </div>
                 )}
-                <p className="mt-2 text-xs text-white/25">Coba: NEWUSER50 · DISKON10 · HEMAT25K</p>
+                <p className="mt-2 text-xs text-black/25 dark:text-white/25">Coba: NEWUSER50 · DISKON10 · HEMAT25K</p>
               </div>
 
               {/* Payment Method */}
-              <div className="rounded-xl border border-white/8 bg-white/3 p-5">
-                <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-white/50 flex items-center gap-1.5">
-                  <CreditCard className="h-3.5 w-3.5 text-violet-400" />
+              <div className={sectionCard}>
+                <h2 className={sectionHeading}>
+                  <CreditCard className="h-3.5 w-3.5 text-violet-500 dark:text-violet-400" />
                   Metode Pembayaran
                 </h2>
                 <FormField control={form.control} name="payment_method" render={({ field }) => (
@@ -239,20 +242,20 @@ export default function CheckoutPage() {
                           className={`flex items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
                             selectedPayment === value
                               ? "border-violet-500/60 bg-violet-500/10"
-                              : "border-white/8 bg-white/2 hover:border-white/15"
+                              : "border-violet-200/60 dark:border-white/8 bg-violet-50/30 dark:bg-white/2 hover:border-violet-400/60 dark:hover:border-white/15"
                           }`}
                         >
-                          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${selectedPayment === value ? "bg-violet-500/20" : "bg-white/5"}`}>
-                            <Icon className={`h-4 w-4 ${selectedPayment === value ? "text-violet-400" : "text-white/40"}`} />
+                          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${selectedPayment === value ? "bg-violet-500/20" : "bg-violet-100/60 dark:bg-white/5"}`}>
+                            <Icon className={`h-4 w-4 ${selectedPayment === value ? "text-violet-600 dark:text-violet-400" : "text-violet-400/60 dark:text-white/40"}`} />
                           </div>
                           <div>
-                            <p className={`text-sm font-medium ${selectedPayment === value ? "text-white" : "text-white/70"}`}>{label}</p>
-                            <p className="text-xs text-white/30 mt-0.5">{desc}</p>
+                            <p className={`text-sm font-medium ${selectedPayment === value ? "text-violet-700 dark:text-white" : "text-slate-700 dark:text-white/70"}`}>{label}</p>
+                            <p className="text-xs text-black/30 dark:text-white/30 mt-0.5">{desc}</p>
                           </div>
                         </button>
                       ))}
                     </div>
-                    <FormMessage className="text-xs text-red-400" />
+                    <FormMessage className="text-xs text-red-500 dark:text-red-400" />
                   </FormItem>
                 )} />
               </div>
@@ -260,52 +263,52 @@ export default function CheckoutPage() {
 
             {/* RIGHT: Order Summary */}
             <div className="space-y-4">
-              <div className="rounded-xl border border-white/8 bg-white/3 p-5 sticky top-20">
-                <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-white/50 flex items-center gap-1.5">
-                  <ShoppingBag className="h-3.5 w-3.5 text-violet-400" />
+              <div className={`${sectionCard} sticky top-20`}>
+                <h2 className={sectionHeading}>
+                  <ShoppingBag className="h-3.5 w-3.5 text-violet-500 dark:text-violet-400" />
                   Ringkasan Pesanan
                 </h2>
 
                 <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
                   {items.map((item) => (
                     <div key={item.id} className="flex items-center gap-3">
-                      <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-white/5 border border-white/5">
+                      <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-violet-50 dark:bg-white/5 border border-violet-100 dark:border-white/5">
                         {item.image_url ? (
                           <Image src={item.image_url} alt={item.name} fill className="object-cover" />
                         ) : (
                           <div className="flex h-full items-center justify-center">
-                            <ShoppingBag className="h-4 w-4 text-white/20" />
+                            <ShoppingBag className="h-4 w-4 text-black/20 dark:text-white/20" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-white truncate">{item.name}</p>
-                        <p className="text-xs text-white/40">×{item.quantity}</p>
+                        <p className="text-sm text-slate-900 dark:text-white truncate">{item.name}</p>
+                        <p className="text-xs text-black/40 dark:text-white/40">×{item.quantity}</p>
                       </div>
-                      <p className="text-sm font-medium text-white shrink-0">
+                      <p className="text-sm font-medium text-slate-900 dark:text-white shrink-0">
                         {formatRupiah(item.price * item.quantity)}
                       </p>
                     </div>
                   ))}
                 </div>
 
-                <Separator className="my-4 bg-white/8" />
+                <Separator className="my-4 bg-violet-200/40 dark:bg-white/8" />
 
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between text-white/60">
+                  <div className="flex justify-between text-black/50 dark:text-white/60">
                     <span>Subtotal</span>
                     <span>{formatRupiah(subtotal)}</span>
                   </div>
                   {discount > 0 && (
-                    <div className="flex justify-between text-emerald-400">
+                    <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
                       <span>Diskon Voucher</span>
                       <span>-{formatRupiah(discount)}</span>
                     </div>
                   )}
-                  <Separator className="bg-white/8" />
-                  <div className="flex justify-between text-base font-bold text-white">
-                    <span>Total</span>
-                    <span className="text-transparent bg-clip-text bg-linear-to-r from-violet-400 to-fuchsia-400">
+                  <Separator className="bg-violet-200/40 dark:bg-white/8" />
+                  <div className="flex justify-between text-base font-bold">
+                    <span className="text-slate-900 dark:text-white">Total</span>
+                    <span className="text-transparent bg-clip-text bg-linear-to-r from-violet-600 to-fuchsia-500 dark:from-violet-400 dark:to-fuchsia-400">
                       {formatRupiah(total)}
                     </span>
                   </div>
@@ -328,7 +331,7 @@ export default function CheckoutPage() {
                     </>
                   )}
                 </Button>
-                <p className="mt-2 text-center text-xs text-white/25">Pilih metode → instruksi pembayaran akan muncul</p>
+                <p className="mt-2 text-center text-xs text-black/25 dark:text-white/25">Pilih metode → instruksi pembayaran akan muncul</p>
               </div>
             </div>
           </div>
