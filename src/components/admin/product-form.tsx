@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
-import { Loader2, Upload, X, ImageIcon, Tag, Package, DollarSign, Layers } from "lucide-react"
+import { Loader2, Upload, X, ImageIcon, Tag, Package, DollarSign, Layers, Send } from "lucide-react"
 import Image from "next/image"
 
 import { productCreateSchema, type ProductCreateInput } from "@/lib/validators/product.schema"
@@ -49,7 +49,7 @@ export function ProductForm({ open, onClose, onSuccess, product }: ProductFormPr
     defaultValues: {
       name: "", description: "", price: 0, stock: 0,
       status: "AVAILABLE", product_type: "TOPUP",
-      category_id: null, image_url: null,
+      category_id: null, image_url: null, delivery_info: null,
     },
   })
 
@@ -70,13 +70,14 @@ export function ProductForm({ open, onClose, onSuccess, product }: ProductFormPr
         product_type: product.product_type,
         category_id: product.category_id ?? null,
         image_url: product.image_url ?? null,
+        delivery_info: (product as ProductCreateInput & { id: string; delivery_info?: string | null }).delivery_info ?? null,
       })
       setImagePreview(product.image_url ?? null)
     } else {
       form.reset({
         name: "", description: "", price: 0, stock: 0,
         status: "AVAILABLE", product_type: "TOPUP",
-        category_id: null, image_url: null,
+        category_id: null, image_url: null, delivery_info: null,
       })
       setImagePreview(null)
     }
@@ -309,6 +310,34 @@ export function ProductForm({ open, onClose, onSuccess, product }: ProductFormPr
                   </FormItem>
                 )} />
               </div>
+
+              {/* Delivery Info */}
+              <FormField control={form.control} name="delivery_info" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={labelCls + " flex items-center gap-1.5"}>
+                    <Send className="h-3 w-3" /> Info Pengiriman ke Pembeli
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={
+                        form.watch("product_type") === "ACCOUNT"
+                          ? "Email: user@gmail.com\nPassword: Pass123!\nContoh: Rank Diamond, hero 80+"
+                          : form.watch("product_type") === "VOUCHER"
+                          ? "Kode: XXXX-XXXX-XXXX-XXXX"
+                          : "Top up akan diproses dalam 1-5 menit. Pastikan User ID & server sudah benar."
+                      }
+                      rows={4}
+                      className={inputCls + " h-auto resize-none py-2.5 text-xs font-mono"}
+                      {...field}
+                      value={field.value ?? ""}
+                    />
+                  </FormControl>
+                  <p className="text-[10px] text-white/30 mt-1">Isi ini akan dikirim otomatis ke email pembeli setelah checkout berhasil.</p>
+                  <FormMessage className="text-xs text-red-400" />
+                </FormItem>
+              )} />
+
+              <Separator className="bg-white/5" />
 
               {/* Kategori */}
               <FormField control={form.control} name="category_id" render={({ field }) => (

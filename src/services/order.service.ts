@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin"
 import { AppError, NotFoundError } from "@/lib/errors"
 import { generateOrderNumber } from "@/lib/utils"
+import { sendOrderConfirmationEmail } from "@/lib/email"
 import type { OrderCreateInput, OrderQuery } from "@/lib/validators/order.schema"
 
 export async function createOrder(input: OrderCreateInput, userId: string | null) {
@@ -35,7 +36,49 @@ export async function createOrder(input: OrderCreateInput, userId: string | null
     throw new AppError("Gagal membuat pesanan: " + error.message, "ORDER_CREATE_FAILED")
   }
 
-  return { orderNumber, orderId: orderId as string }
+  // Send order confirmation email — fire and forget (don't block response)
+  const resolvedOrderId = orderId as string
+  ;(async () => {
+    try {
+      const [itemsRes, orderRes] = await Promise.all([
+        admin
+          .from("order_items")
+          .select("product_name, price, quantity, subtotal, product_id, products(delivery_info, product_type)")
+          .eq("order_id", resolvedOrderId),
+        admin
+          .from("orders")
+          .select("subtotal, discount, total, payment_method")
+          .eq("order_number", orderNumber)
+          .single(),
+      ])
+
+      if (itemsRes.data && orderRes.data) {
+        const emailItems = itemsRes.data.map((item) => ({
+          product_name: item.product_name,
+          price: item.price,
+          quantity: item.quantity,
+          subtotal: item.subtotal,
+          delivery_info: (item.products as { delivery_info: string | null } | null)?.delivery_info ?? null,
+          product_type: (item.products as { product_type: string } | null)?.product_type ?? "TOPUP",
+        }))
+
+        await sendOrderConfirmationEmail({
+          to: input.customer_email,
+          customerName: input.customer_name,
+          orderNumber,
+          items: emailItems,
+          subtotal: orderRes.data.subtotal,
+          discount: orderRes.data.discount,
+          total: orderRes.data.total,
+          paymentMethod: orderRes.data.payment_method,
+        })
+      }
+    } catch (emailErr) {
+      console.error("[email] Failed to send order confirmation:", emailErr)
+    }
+  })()
+
+  return { orderNumber, orderId: resolvedOrderId }
 }
 
 export async function listOrders(query: OrderQuery) {

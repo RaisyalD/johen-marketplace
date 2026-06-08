@@ -12,6 +12,7 @@ export const productCreateSchema = z.object({
   product_type: z.enum(["ACCOUNT", "TOPUP", "VOUCHER"]),
   category_id: z.string().uuid().optional().nullable(),
   image_url: z.string().url().optional().nullable(),
+  delivery_info: z.string().max(5000).optional().nullable(),
 })
 
 export const productUpdateSchema = productCreateSchema.partial()

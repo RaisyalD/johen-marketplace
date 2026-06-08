@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { CheckCircle2, Package, ArrowRight, Home, Loader2 } from "lucide-react"
+import { CheckCircle2, Package, ArrowRight, Home, Loader2, Mail } from "lucide-react"
 import { formatRupiah } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
 import type { ApiResponse } from "@/types/api.types"
@@ -60,6 +60,10 @@ export default function OrderSuccessPage() {
         </div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Pembayaran Berhasil!</h1>
         <p className="mt-1 text-sm text-black/50 dark:text-white/50">Pesananmu telah dikonfirmasi</p>
+        <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-violet-300/50 dark:border-violet-500/30 bg-violet-50 dark:bg-violet-500/10 px-3 py-1.5 text-xs text-violet-700 dark:text-violet-300">
+          <Mail className="h-3.5 w-3.5" />
+          Konfirmasi dikirim ke <span className="font-semibold">{order.customer_email}</span>
+        </div>
       </div>
 
       {/* Order Card */}
