@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import emailjs from "@emailjs/browser"
 import { CheckCircle2, Package, ArrowRight, Home, Loader2, Mail } from "lucide-react"
+import { toast } from "sonner"
 import { formatRupiah } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
 import type { ApiResponse } from "@/types/api.types"
@@ -78,7 +79,13 @@ export default function OrderSuccessPage() {
         },
         process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
       )
-      .catch((err) => console.error("[emailjs] Failed to send:", err))
+      .then(() => {
+        toast.success("Email konfirmasi terkirim!", { description: order.customer_email })
+      })
+      .catch((err) => {
+        console.error("[emailjs] error:", err)
+        toast.error("Gagal kirim email: " + (err?.text ?? err?.message ?? JSON.stringify(err)))
+      })
   }, [order])
 
   if (loading) {
