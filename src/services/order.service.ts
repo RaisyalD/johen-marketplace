@@ -35,6 +35,14 @@ export async function createOrder(input: OrderCreateInput, userId: string | null
     throw new AppError("Gagal membuat pesanan: " + error.message, "ORDER_CREATE_FAILED")
   }
 
+  // Save game_id and game_server if provided (for TOPUP products)
+  if (input.game_id) {
+    await admin
+      .from("orders")
+      .update({ game_id: input.game_id, game_server: input.game_server ?? null })
+      .eq("order_number", orderNumber)
+  }
+
   return { orderNumber, orderId: orderId as string }
 }
 

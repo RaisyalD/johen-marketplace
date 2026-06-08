@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
-import { Loader2, ShoppingBag, Tag, CreditCard, ChevronRight, CheckCircle2, Banknote, Wallet, QrCode } from "lucide-react"
+import { Loader2, ShoppingBag, Tag, CreditCard, ChevronRight, CheckCircle2, Banknote, Wallet, QrCode, Gamepad2 } from "lucide-react"
 import Image from "next/image"
 import { useCartStore } from "@/stores/cart.store"
 import { formatRupiah } from "@/lib/utils"
@@ -25,6 +25,8 @@ const checkoutSchema = z.object({
   customer_email: z.email({ error: "Format email tidak valid" }),
   customer_phone: z.string().optional(),
   payment_method: z.enum(["BANK_TRANSFER", "EWALLET", "QRIS"]),
+  game_id: z.string().optional(),
+  game_server: z.string().optional(),
 })
 
 type CheckoutFormValues = z.infer<typeof checkoutSchema>
@@ -51,6 +53,7 @@ export default function CheckoutPage() {
   const subtotal = getTotal()
   const discount = voucher?.valid ? (voucher.discount ?? 0) : 0
   const total = subtotal - discount
+  const hasTopup = items.some((i) => i.product_type === "TOPUP")
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
@@ -59,6 +62,8 @@ export default function CheckoutPage() {
       customer_email: "",
       customer_phone: "",
       payment_method: "BANK_TRANSFER",
+      game_id: "",
+      game_server: "",
     },
   })
 
@@ -104,6 +109,10 @@ export default function CheckoutPage() {
 
   async function onSubmit(values: CheckoutFormValues) {
     if (items.length === 0) return
+    if (hasTopup && !values.game_id?.trim()) {
+      form.setError("game_id", { message: "Game ID wajib diisi untuk produk Top Up" })
+      return
+    }
     setProcessing(true)
     await new Promise((r) => setTimeout(r, 1500))
     setProcessing(false)
@@ -123,6 +132,8 @@ export default function CheckoutPage() {
         items: items.map((i) => ({ product_id: i.id, quantity: i.quantity })),
         voucher_code: voucher?.valid ? voucherCode.trim() : null,
         payment_method: pendingValues.payment_method,
+        game_id: pendingValues.game_id?.trim() || null,
+        game_server: pendingValues.game_server?.trim() || null,
       }),
     })
     const json: ApiResponse<{ orderNumber: string }> = await res.json()
@@ -192,6 +203,48 @@ export default function CheckoutPage() {
                   )} />
                 </div>
               </div>
+
+              {/* Game Info — hanya tampil jika ada produk TOPUP */}
+              {hasTopup && (
+                <div className={sectionCard}>
+                  <h2 className={sectionHeading}>
+                    <Gamepad2 className="h-3.5 w-3.5 text-violet-500 dark:text-violet-400" />
+                    Informasi Akun Game
+                  </h2>
+                  <p className="text-xs text-black/40 dark:text-white/30 mb-4 -mt-2">
+                    Wajib diisi agar top up masuk ke akun game yang benar.
+                  </p>
+                  <div className="space-y-4">
+                    <FormField control={form.control} name="game_id" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className={labelClass}>
+                          Game ID / User ID <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Contoh: 123456789"
+                            className={inputClass}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage className="text-xs text-red-500 dark:text-red-400" />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="game_server" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className={labelClass}>Server / Region (opsional)</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Contoh: Indonesia, Asia, Server 1"
+                            className={inputClass}
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )} />
+                  </div>
+                </div>
+              )}
 
               {/* Voucher */}
               <div className={sectionCard}>

@@ -19,6 +19,7 @@ type Order = {
   id: string; order_number: string; customer_name: string; customer_email: string
   subtotal: number; discount: number; total: number; status: string
   payment_method: string; voucher_code: string | null; created_at: string
+  game_id: string | null; game_server: string | null
   order_items: OrderItem[]
 }
 
@@ -49,6 +50,10 @@ export default function OrderSuccessPage() {
     if (!order || emailSent.current) return
     emailSent.current = true
 
+    const gameInfo = order.game_id
+      ? `Game ID : ${order.game_id}${order.game_server ? `\nServer  : ${order.game_server}` : ""}`
+      : null
+
     const itemsList = order.order_items
       .map((item) => `- ${item.product_name} ×${item.quantity}  →  ${formatRupiah(item.price * item.quantity)}`)
       .join("\n")
@@ -57,8 +62,12 @@ export default function OrderSuccessPage() {
       .map((item) => {
         const info = item.products?.delivery_info
         if (info) return `[ ${item.product_name} ]\n${info}`
-        if (item.products?.product_type === "TOPUP")
-          return `[ ${item.product_name} ]\nTop up sedang diproses dalam 1–5 menit. Pastikan User ID & server game kamu sudah benar.`
+        if (item.products?.product_type === "TOPUP") {
+          const topupMsg = gameInfo
+            ? `Top up akan diproses ke:\n${gameInfo}\n\nEstimasi: 1–5 menit.`
+            : `Top up sedang diproses dalam 1–5 menit. Pastikan User ID & server game kamu sudah benar.`
+          return `[ ${item.product_name} ]\n${topupMsg}`
+        }
         return null
       })
       .filter(Boolean)

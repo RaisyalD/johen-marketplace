@@ -14,6 +14,8 @@ export const orderCreateSchema = z.object({
   payment_method: z.enum(["BANK_TRANSFER", "EWALLET", "QRIS"], {
     error: "Pilih metode pembayaran",
   }),
+  game_id: z.string().optional().nullable(),
+  game_server: z.string().optional().nullable(),
 })
 
 export const orderQuerySchema = z.object({
