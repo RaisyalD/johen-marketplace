@@ -1,14 +1,19 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
+import emailjs from "@emailjs/browser"
 import { CheckCircle2, Package, ArrowRight, Home, Loader2, Mail } from "lucide-react"
 import { formatRupiah } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
 import type { ApiResponse } from "@/types/api.types"
 
-type OrderItem = { id: string; product_name: string; price: number; quantity: number; subtotal: number }
+type ProductInfo = { delivery_info: string | null; product_type: string } | null
+type OrderItem = {
+  id: string; product_name: string; price: number; quantity: number; subtotal: number
+  products?: ProductInfo
+}
 type Order = {
   id: string; order_number: string; customer_name: string; customer_email: string
   subtotal: number; discount: number; total: number; status: string
@@ -27,6 +32,7 @@ export default function OrderSuccessPage() {
   const router = useRouter()
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
+  const emailSent = useRef(false)
 
   useEffect(() => {
     fetch(`/api/orders/${orderNumber}`)
@@ -37,6 +43,43 @@ export default function OrderSuccessPage() {
       })
       .finally(() => setLoading(false))
   }, [orderNumber, router])
+
+  useEffect(() => {
+    if (!order || emailSent.current) return
+    emailSent.current = true
+
+    const itemsList = order.order_items
+      .map((item) => `- ${item.product_name} ×${item.quantity}  →  ${formatRupiah(item.price * item.quantity)}`)
+      .join("\n")
+
+    const deliveryLines = order.order_items
+      .map((item) => {
+        const info = item.products?.delivery_info
+        if (info) return `[ ${item.product_name} ]\n${info}`
+        if (item.products?.product_type === "TOPUP")
+          return `[ ${item.product_name} ]\nTop up sedang diproses dalam 1–5 menit. Pastikan User ID & server game kamu sudah benar.`
+        return null
+      })
+      .filter(Boolean)
+      .join("\n\n")
+
+    emailjs
+      .send(
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
+        {
+          to_email: order.customer_email,
+          customer_name: order.customer_name,
+          order_number: order.order_number,
+          items_list: itemsList,
+          total: formatRupiah(order.total),
+          payment_method: paymentLabel[order.payment_method] ?? order.payment_method,
+          delivery_info: deliveryLines || "Detail produk akan dikonfirmasi oleh admin dalam 1×24 jam.",
+        },
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
+      )
+      .catch((err) => console.error("[emailjs] Failed to send:", err))
+  }, [order])
 
   if (loading) {
     return (
