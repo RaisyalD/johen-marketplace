@@ -57,7 +57,7 @@ export async function createOrder(input: OrderCreateInput, userId: string | null
           product_name: item.product_name,
           price: item.price,
           quantity: item.quantity,
-          subtotal: item.subtotal,
+          subtotal: item.subtotal ?? 0,
           delivery_info: (item.products as { delivery_info: string | null } | null)?.delivery_info ?? null,
           product_type: (item.products as { product_type: string } | null)?.product_type ?? "TOPUP",
         }))
@@ -67,10 +67,10 @@ export async function createOrder(input: OrderCreateInput, userId: string | null
           customerName: input.customer_name,
           orderNumber,
           items: emailItems,
-          subtotal: orderRes.data.subtotal,
-          discount: orderRes.data.discount,
-          total: orderRes.data.total,
-          paymentMethod: orderRes.data.payment_method,
+          subtotal: orderRes.data.subtotal ?? 0,
+          discount: orderRes.data.discount ?? 0,
+          total: orderRes.data.total ?? 0,
+          paymentMethod: orderRes.data.payment_method ?? "BANK_TRANSFER",
         })
       }
     } catch (emailErr) {
